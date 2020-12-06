@@ -1,5 +1,5 @@
-FROM gradle:jdk14
-WORKDIR /app
+FROM openjdk:11
+WORKDIR /app/
 COPY ./* ./
 RUN javac -encoding UTF-8 *.java
-RUN chmod +x TokenizerTest
+RUN chmod +x AnalyserTest
