@@ -46,7 +46,6 @@ public class StringIter {
         // todo:check read \n?
         initialized = true;
     }
-
     // 一个简单的总结
     // | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 偏移
     // | = | = | = | = | = | = | = | = | = | = |

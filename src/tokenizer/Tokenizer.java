@@ -46,7 +46,7 @@ public class Tokenizer {
         else if (peek == '\''){
             return lexChar();
         }
-        // 运算符
+        // 运算符 or 注释
         else {
             return lexOperatorOrUnknown();
         }
@@ -188,7 +188,7 @@ public class Tokenizer {
     }
 
     // 判断是否为一个字符常量
-    private Token lexChar()throws TokenizeError {
+    private Token lexChar() throws TokenizeError {
         // 直到查看下一个字符是\'为止
         // 记录字符的长度
         // 记录字符
@@ -240,6 +240,7 @@ public class Tokenizer {
             throw new TokenizeError(ErrorCode.ExpectedToken,p1);
         }
     }
+
     // 判断是否为运算符
     private Token lexOperatorOrUnknown() throws TokenizeError {
         switch (it.nextChar()) {
@@ -270,9 +271,10 @@ public class Tokenizer {
 
             case '/':
                 try{
+                    // 判断是否为注释
                     if(it.peekChar() == '/'){
-                        it.nextChar();
-                        return new Token(TokenType.COMMENT, "//", it.previousPos(), it.currentPos());
+                        while(it.nextChar() != '\n') ;
+                        return nextToken();
                     }
                     return new Token(TokenType.DIV, '/', it.previousPos(), it.currentPos());
                 }catch (Exception e){
@@ -364,7 +366,7 @@ public class Tokenizer {
                 throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
         }
     }
-
+    // 跳过空白字符
     private void skipSpaceCharacters() {
         while (!it.isEOF() && Character.isWhitespace(it.peekChar())) {
             it.nextChar();
