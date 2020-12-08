@@ -94,14 +94,15 @@ public class Tokenizer {
         try{
             // 解析存储的字符串为无符号整数
             if(distinguish == 0){
-                Integer num = Integer.parseInt(str_token);
+                // cxy
+//                Integer num = Integer.parseInt(str_token);
                 // 解析成功则返回无符号整数类型的token，否则返回编译错误
-                return new Token(TokenType.UINT_LITERAL, num, p1,it.ptr);
+                return new Token(TokenType.UINT_LITERAL, str_token, p1,it.ptr);
             }
             else {
                 Double num = Double.parseDouble(str_token);
                 // 解析成功则返回无符号整数类型的token，否则返回编译错误
-                return new Token(TokenType.DOUBLE_LITERAL, num, p1,it.ptr);
+                return new Token(TokenType.DOUBLE_LITERAL, str_token, p1,it.ptr);
             }
 
         }catch(Exception e){
@@ -246,7 +247,7 @@ public class Tokenizer {
         switch (it.nextChar()) {
             case '+':
                 try{
-                    return new Token(TokenType.PLUS, '+', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.PLUS, "+", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
@@ -257,14 +258,14 @@ public class Tokenizer {
                         it.nextChar();
                         return new Token(TokenType.ARROW, "->", it.previousPos(), it.currentPos());
                     }
-                    return new Token(TokenType.MINUS, '-', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.MINUS, "-", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
 
             case '*':
                 try{
-                    return new Token(TokenType.MUL, '*', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.MUL, "*", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
@@ -276,7 +277,7 @@ public class Tokenizer {
                         while(it.nextChar() != '\n') ;
                         return nextToken();
                     }
-                    return new Token(TokenType.DIV, '/', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.DIV, "/", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
@@ -286,7 +287,7 @@ public class Tokenizer {
                         it.nextChar();
                         return new Token(TokenType.EQ, "==", it.previousPos(), it.currentPos());
                     }
-                    return new Token(TokenType.ASSIGN, '=', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.ASSIGN, "=", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
@@ -305,7 +306,7 @@ public class Tokenizer {
                         it.nextChar();
                         return new Token(TokenType.LE , "<=", it.previousPos(), it.currentPos());
                     }
-                    return new Token(TokenType.LT, '<', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.LT, "<", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
@@ -315,49 +316,49 @@ public class Tokenizer {
                         it.nextChar();
                         return new Token(TokenType.GE , ">=", it.previousPos(), it.currentPos());
                     }
-                    return new Token(TokenType.GT, '>', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.GT, ">", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
             case '(':
                 try{
-                    return new Token(TokenType.L_PAREN, '(', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.L_PAREN, "(", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
             case ')':
                 try{
-                    return new Token(TokenType.R_PAREN, ')', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.R_PAREN, ")", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
             case '{':
                 try{
-                    return new Token(TokenType.L_BRACE, '{', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.L_BRACE, "{", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
             case '}':
                 try{
-                    return new Token(TokenType.R_BRACE, '}', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.R_BRACE, "}", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
             case ',':
                 try{
-                    return new Token(TokenType.COMMA, ',', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.COMMA, ",", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
             case ':':
                 try{
-                    return new Token(TokenType.COLON, ':', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.COLON, ":", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }
             case ';':
                 try{
-                    return new Token(TokenType.SEMICOLON, ';', it.previousPos(), it.currentPos());
+                    return new Token(TokenType.SEMICOLON, ";", it.previousPos(), it.currentPos());
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());
                 }

@@ -6,11 +6,11 @@ import java.util.Objects;
 
 public class Token {
     private TokenType tokenType;
-    private Object value;
+    private String value;
     private Pos startPos;
     private Pos endPos;
 
-    public Token(TokenType tokenType, Object value, Pos startPos, Pos endPos) {
+    public Token(TokenType tokenType, String value, Pos startPos, Pos endPos) {
         this.tokenType = tokenType;
         this.value = value;
         this.startPos = startPos;
@@ -40,12 +40,12 @@ public class Token {
         return Objects.hash(tokenType, value, startPos, endPos);
     }
 
-    public String getValueString() {
-        if (value instanceof Integer || value instanceof String || value instanceof Character) {
-            return value.toString();
-        }
-        throw new Error("No suitable cast for token value.");
-    }
+//    public String getValueString() {
+//        if (value instanceof Integer || value instanceof String || value instanceof Character) {
+//            return value.toString();
+//        }
+//        throw new Error("No suitable cast for token value.");
+//    }
 
     public TokenType getTokenType() {
         return tokenType;
@@ -55,11 +55,11 @@ public class Token {
         this.tokenType = tokenType;
     }
 
-    public Object getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(Object value) {
+    public void setValue(String value) {
         this.value = value;
     }
 
