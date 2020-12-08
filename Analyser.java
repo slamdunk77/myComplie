@@ -37,6 +37,9 @@ public class Analyser {
     // 算符优先表
     private static int priority[][];
 
+    //用于二进制输出
+    private static FunctionDef startFunction;
+
 
     private static void initProgram(){
         TokenIter.initTokenList();
@@ -104,6 +107,7 @@ public class Analyser {
             instruction = new Instruction(InstructionType.call, functionCount-1);
             AnalyserTable.getInstructionList().add(instruction);
         }
+        startFunction = new FunctionDef(globalCount, "_start",0, 0, 0, instructionList1);
         globalCount++;
     }
     // 分析定义语句
@@ -887,5 +891,9 @@ public class Analyser {
         if (token.getTokenType() != TokenType.SEMICOLON)
             throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
         token = TokenIter.currentToken();
+    }
+    // 用于二进制输出
+    public static FunctionDef getStartFunction(){
+        return startFunction;
     }
 }

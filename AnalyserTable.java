@@ -313,4 +313,5 @@ public class AnalyserTable {
                 AnalyserTable.getConstList().remove(i);
         }
     }
+
 }
