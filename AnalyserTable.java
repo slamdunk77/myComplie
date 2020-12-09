@@ -100,6 +100,8 @@ public class AnalyserTable {
                     return true;
             }
         }
+        if(funcName.equals("getint")||funcName.equals("getdouble")||funcName.equals("getchar"))
+            return true;
         return false;
     }
     // 是否是合法变量名(定义语句中)

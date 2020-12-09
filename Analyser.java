@@ -83,8 +83,8 @@ public class Analyser {
                 instruction = new Instruction(InstructionType.call, functionCount-1);
                 instructionList1.add(instruction);
 //                // 返回后把栈中关于返回函数中所有的变量全部弹出
-//                instruction = new Instruction(InstructionType.popn, 1);
-//                AnalyserTable.getInstructionList().add(instruction);
+                instruction = new Instruction(InstructionType.popn, 1);
+                AnalyserTable.getInstructionList().add(instruction);
             }
             else{
                 // call main
@@ -854,18 +854,22 @@ public class Analyser {
         token = TokenIter.currentToken();
 
         if(token.getTokenType() != TokenType.SEMICOLON){
-            if(token.getValue().equals("int")){
+            if(type.equals("int")){
                 //取返回地址
-                Instruction instructions = new Instruction(InstructionType.arga, 0);
-                AnalyserTable.getInstructionList().add(instructions);
+                Instruction instruction = new Instruction(InstructionType.arga, 0);
+                AnalyserTable.getInstructionList().add(instruction);
 
                 analyseExpr(level);
                 // 弹栈，把expr中入栈的东西全部弹出???
                 while (!tokenStack.empty()) {
                     AnalyserTable.operationInstruction(tokenStack.pop().getTokenType());
                 }
+                //放入地址中
+                instruction = new Instruction(InstructionType.store, null);
+                AnalyserTable.getInstructionList().add(instruction);
+                isReturn = true;
             }
-            else if(token.getValue().equals("void"))
+            else if(type.equals("void"))
                 throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
         }
         if (token.getTokenType() != TokenType.SEMICOLON)
