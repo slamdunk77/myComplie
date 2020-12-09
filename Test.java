@@ -1,3 +1,12 @@
+package test;
+
+import analyser.Analyser;
+import analyser.AnalyserTable;
+import error.TokenizeError;
+import tokenizer.StringIter;
+import tokenizer.Token;
+import tokenizer.Tokenizer;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,12 +39,6 @@ public class Test {
                     break;
             }
             Analyser.analyseProgram();
-            for(int i=0;i<AnalyserTable.getInstructionList().size();i++){
-                System.out.println(AnalyserTable.getInstructionList().get(i).getInstr());
-                System.out.println(AnalyserTable.getInstructionList().get(i).getInstrId());
-
-            }
-
             Binary binary = new Binary(AnalyserTable.getGlobalDefList(), Analyser.getStartFunction(), AnalyserTable.getFunctionDefList());
             DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(args[1])));
             ArrayList<Byte> bytes = binary.generate();
