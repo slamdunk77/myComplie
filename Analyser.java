@@ -68,39 +68,39 @@ public class Analyser {
             localCount = 0;
             // 初始化函数是否有返回值
             isReturn = false;
+            // 若没有异常，全局变量加1，函数个数加一
+//            globalCount++;
+            functionCount++;
+            // 加入指令
+            // 一开始设置分配空间为0
+            Instruction instruction = new Instruction(InstructionType.stackalloc, 0);
+            instructionList1.add(instruction);
+            // 加入函数返回指令
+            if(AnalyserTable.isFuncReturn("main")){
+                // 分配一个返回地址的空间
+                instruction.setInstrId(1);
+                // call main
+                instruction = new Instruction(InstructionType.call, functionCount-1);
+                instructionList1.add(instruction);
+//                // 返回后把栈中关于返回函数中所有的变量全部弹出
+//                instruction = new Instruction(InstructionType.popn, 1);
+//                AnalyserTable.getInstructionList().add(instruction);
+            }
+            else{
+                // call main
+                instruction = new Instruction(InstructionType.call, functionCount-1);
+                instructionList1.add(instruction);
+            }
+            startFunction = new FunctionDef(globalCount, "_start",0, 0, 0, instructionList1);
+//            globalCount++;
             // 对函数分析
             analyseFunction();
-            // 若没有异常，全局变量加1，函数个数加一
-            globalCount++;
-            functionCount++;
         }
         if(AnalyserTable.findFunc("main") == null)
             throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
         // 填入主函数
         GlobalDef globalDef = new GlobalDef(1,6, "_start");
         AnalyserTable.getGlobalDefList().add(globalDef);
-        // 加入指令
-        // 一开始设置分配空间为0
-        Instruction instruction = new Instruction(InstructionType.stackalloc, 0);
-        instructionList1.add(instruction);
-        // 加入函数返回指令
-        if(AnalyserTable.isFuncReturn("main")){
-            // 分配一个返回地址的空间
-            instruction.setInstrId(1);
-            // call main
-            instruction = new Instruction(InstructionType.call, functionCount-1);
-            AnalyserTable.getInstructionList().add(instruction);
-            // 返回后把栈中关于返回函数中所有的变量全部弹出
-            instruction = new Instruction(InstructionType.popn, 1);
-            AnalyserTable.getInstructionList().add(instruction);
-        }
-        else{
-            // call main
-            instruction = new Instruction(InstructionType.call, functionCount-1);
-            AnalyserTable.getInstructionList().add(instruction);
-        }
-        startFunction = new FunctionDef(globalCount, "_start",0, 0, 0, instructionList1);
-        globalCount++;
     }
     // 分析定义语句
     public static void analyseDecl(Integer level) throws Exception {
@@ -164,7 +164,7 @@ public class Analyser {
                 AnalyserTable.getInstructionList().add(instruction);
             }
             else{
-                Instruction instruction = new Instruction(InstructionType.loca, globalCount-1);
+                Instruction instruction = new Instruction(InstructionType.loca, localCount-1);
                 AnalyserTable.getInstructionList().add(instruction);
             }
             token = TokenIter.currentToken();
@@ -534,6 +534,7 @@ public class Analyser {
 
         if (token.getTokenType() != TokenType.R_PAREN)
             count = analyseCallParamList(level);
+
 
         // 检查传入的参数是否合法：类型 数量......
         if(!AnalyserTable.checkParam(varName, count))
