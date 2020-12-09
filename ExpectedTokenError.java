@@ -1,8 +1,3 @@
-package error;
-
-import tokenizer.Token;
-import tokenizer.TokenType;
-import util.Pos;
 
 import java.util.ArrayList;
 import java.util.List;

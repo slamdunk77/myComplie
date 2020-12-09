@@ -1,4 +1,4 @@
-package Ident;
+
 
 public class Variable {
     private String varName;

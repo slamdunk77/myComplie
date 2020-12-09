@@ -1,4 +1,4 @@
-package instruction;
+
 
 public enum  InstructionType {
     push,

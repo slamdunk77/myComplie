@@ -1,4 +1,3 @@
-package Ident;
 
 public class Constant {
     private String constName;

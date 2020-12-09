@@ -1,8 +1,4 @@
-package tokenizer;
 
-import error.ErrorCode;
-import error.TokenizeError;
-import util.Pos;
 
 public class Tokenizer {
 

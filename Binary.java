@@ -1,8 +1,3 @@
-package test;
-
-import Ident.FunctionDef;
-import Ident.GlobalDef;
-import instruction.Instruction;
 
 import java.io.*;
 import java.util.ArrayList;

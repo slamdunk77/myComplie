@@ -1,6 +1,3 @@
-package Ident;
-
-import instruction.Instruction;
 
 import java.util.ArrayList;
 import java.util.List;

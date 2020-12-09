@@ -1,4 +1,4 @@
-package Ident;
+
 
 public class Param {
     private String paramType;

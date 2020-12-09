@@ -1,6 +1,3 @@
-package tokenizer;
-
-import test.Test;
 
 import java.util.Iterator;
 import java.util.ArrayList;

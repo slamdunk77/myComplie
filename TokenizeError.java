@@ -1,6 +1,3 @@
-package error;
-
-import util.Pos;
 
 public class TokenizeError extends CompileError {
     // auto-generated

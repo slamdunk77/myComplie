@@ -1,6 +1,4 @@
-package analyser;
 
-import tokenizer.TokenType;
 
 public class OperatorTable {
     private static int priorityTable[][]={

@@ -1,6 +1,3 @@
-package tokenizer;
-
-import util.Pos;
 
 import java.util.Objects;
 

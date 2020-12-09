@@ -1,9 +1,3 @@
-package analyser;
-
-import Ident.*;
-import instruction.Instruction;
-import instruction.InstructionType;
-import tokenizer.TokenType;
 
 import java.util.ArrayList;
 import java.util.List;

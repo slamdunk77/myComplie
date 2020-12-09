@@ -1,4 +1,4 @@
-package util;
+
 
 public class Pos {
     public Pos(int row, int col) {

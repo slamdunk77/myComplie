@@ -1,4 +1,4 @@
-package Ident;
+
 
 public class GlobalDef {
     private Integer isConst;

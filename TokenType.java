@@ -1,4 +1,3 @@
-package tokenizer;
 
 public enum TokenType {
     /** 空 */

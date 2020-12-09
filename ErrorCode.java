@@ -1,4 +1,4 @@
-package error;
+
 
 public enum ErrorCode {
     NoError, // Should be only used internally.

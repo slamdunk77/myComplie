@@ -1,12 +1,3 @@
-package test;
-
-import analyser.Analyser;
-import analyser.AnalyserTable;
-import error.TokenizeError;
-import tokenizer.StringIter;
-import tokenizer.Token;
-import tokenizer.Tokenizer;
-
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;

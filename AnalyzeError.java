@@ -1,6 +1,4 @@
-package error;
 
-import util.Pos;
 
 public class AnalyzeError extends CompileError {
     private static final long serialVersionUID = 1L;

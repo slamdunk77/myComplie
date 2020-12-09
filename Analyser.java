@@ -1,11 +1,3 @@
-package analyser;
-
-import Ident.*;
-import error.AnalyzeError;
-import error.ErrorCode;
-import instruction.Instruction;
-import instruction.InstructionType;
-import tokenizer.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
