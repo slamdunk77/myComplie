@@ -168,14 +168,20 @@ public class Tokenizer {
                 else if(peek == 'r'){
                     it.nextChar();
                     str_token += "\r";
+                    peek = it.peekChar();
+                    continue;
                 }
                 else if(peek == 'n'){
                     it.nextChar();
                     str_token += "\n";
+                    peek = it.peekChar();
+                    continue;
                 }
                 else if(peek == 't'){
                     it.nextChar();
                     str_token += "\t";
+                    peek = it.peekChar();
+                    continue;
                 }
                 else
                     throw new TokenizeError(ErrorCode.ExpectedToken,p1);
