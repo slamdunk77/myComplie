@@ -70,6 +70,7 @@ public class Analyser {
             isReturn = false;
 
             analyseFunction();
+//            System.out.println(AnalyserTable.getFunctionList().get(0).getParams());
             // 若没有异常，全局变量加1，函数个数加一
             globalCount++;
             functionCount++;
@@ -269,6 +270,19 @@ public class Analyser {
         token = TokenIter.currentToken();
     }
 
+    //expr_stmt -> expr ';'
+    public static void analyseExprStmt(Integer level) throws Exception {
+        analyseExpr(level);
+        //弹栈
+        while (!tokenStack.empty()) {
+            AnalyserTable.operationInstruction(tokenStack.pop().getTokenType());
+        }
+        if (token.getTokenType() != TokenType.SEMICOLON)
+            throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.ptr);
+
+        token = TokenIter.currentToken();
+    }
+
     // 分析表达式
     // expr -> operator_expr | negate_expr | assign_expr | as_expr
     // | call_expr | literal_expr | ident_expr | group_expr
@@ -407,6 +421,7 @@ public class Analyser {
                     //自定义函数
                     else {
                         instruction = new Instruction(InstructionType.call, AnalyserTable.getFunctionAddr(record.getValue()));
+//                        System.out.println(AnalyserTable.getFunctionList().get(0).getParams());
                     }
                     analyseCallExpr(record.getValue(), level);
                     //弹栈
@@ -684,6 +699,7 @@ public class Analyser {
         }
         Function function = new Function(record.getValue(), type, functionCount, AnalyserTable.getParamList());
         AnalyserTable.getFunctionList().add(function);
+//        System.out.println(AnalyserTable.getFunctionList().get(0).getParams());
         // 继续读取下一个token -> block——stmt
         token = TokenIter.currentToken();
         analyseBlock(type, 2);
@@ -774,7 +790,7 @@ public class Analyser {
         else if (token.getTokenType() == TokenType.L_BRACE)
             analyseBlock(type, level + 1);
         else
-            analyseExpr(level);
+            analyseExprStmt(level);
     }
     // if_stmt -> 'if' expr block_stmt ('else' 'if' expr block_stmt)* ('else' block_stmt)?
     public static void analyseIf(String type, Integer level) throws Exception {

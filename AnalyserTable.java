@@ -200,7 +200,7 @@ public class AnalyserTable {
     public static int getFunctionAddr(String funcName) {
         for(int i=0; i < AnalyserTable.getFunctionList().size();i++){
             if(AnalyserTable.getFunctionList().get(i).getFuncName().equals(funcName))
-                return i;
+                return AnalyserTable.getFunctionList().get(i).getFuncId();
         }
         return -1;
     }
@@ -245,12 +245,12 @@ public class AnalyserTable {
     // 是否为本地变量
     public static boolean isLocal(String varName) {
         for(int i=0; i<AnalyserTable.getVarList().size();i++){
-            if(AnalyserTable.getVarList().get(i).getVarName().equals(varName)){
+            if(AnalyserTable.getVarList().get(i).getVarName().equals(varName) && AnalyserTable.getVarList().get(i).getVarLevel() > 1){
                 return true;
             }
         }
         for(int i=0; i<AnalyserTable.getConstList().size();i++){
-            if(AnalyserTable.getConstList().get(i).getConstName().equals(varName)){
+            if(AnalyserTable.getConstList().get(i).getConstName().equals(varName) && AnalyserTable.getConstList().get(i).getConstLevel() > 1){
                 return true;
             }
         }
@@ -288,7 +288,7 @@ public class AnalyserTable {
         }
         for(int i=0;i<AnalyserTable.getFunctionList().size();i++){
             if(AnalyserTable.getFunctionList().get(i).getFuncName().equals(funcName)){
-                if(count == AnalyserTable.getParamList().size())
+                if(count == AnalyserTable.getFunctionList().get(i).getParams().size())
                     return true;
             }
         }
