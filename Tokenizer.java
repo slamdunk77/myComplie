@@ -161,7 +161,9 @@ public class Tokenizer {
                 peek = it.peekChar();
                 if(peek == '\\' || peek == '"' || peek == '\''){
                     it.nextChar();
-                    str_token += '\\';
+                    str_token += peek;
+                    peek = it.peekChar();
+                    continue;
                 }
                 else if(peek == 'r'){
                     it.nextChar();
