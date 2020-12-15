@@ -339,7 +339,7 @@ public class Tokenizer {
                 try{
                     if(it.peekChar() == '=') {
                         it.nextChar();
-                        return new Token(TokenType.EQ, "!=", it.previousPos(), it.currentPos());
+                        return new Token(TokenType.NEQ, "!=", it.previousPos(), it.currentPos());
                     }
                 }catch (Exception e){
                     throw new TokenizeError(ErrorCode.ExpectedToken,it.previousPos());

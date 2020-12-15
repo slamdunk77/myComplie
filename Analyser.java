@@ -57,8 +57,8 @@ public class Analyser {
         }
         ArrayList<Instruction> instructionList1 = AnalyserTable.getInstructionList();
         // 如果不是是函数
-        while(token.getTokenType() != TokenType.EOF){
-            if(token.getTokenType() != TokenType.FN_KW)
+        while(token.getTokenType() != TokenType.EOF) {
+            if (token.getTokenType() != TokenType.FN_KW)
                 throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
             // 开始分析函数，重置指令集
             AnalyserTable.setInstructionList(new ArrayList<>());
@@ -68,39 +68,40 @@ public class Analyser {
             localCount = 0;
             // 初始化函数是否有返回值
             isReturn = false;
-            // 若没有异常，全局变量加1，函数个数加一
-//            globalCount++;
-            functionCount++;
-            // 加入指令
-            // 一开始设置分配空间为0
-            Instruction instruction = new Instruction(InstructionType.stackalloc, 0);
-            instructionList1.add(instruction);
-            // 加入函数返回指令
-            if(AnalyserTable.isFuncReturn("main")){
-                // 分配一个返回地址的空间
-                instruction.setInstrId(1);
-                // call main
-                instruction = new Instruction(InstructionType.call, functionCount-1);
-                instructionList1.add(instruction);
-//                // 返回后把栈中关于返回函数中所有的变量全部弹出
-                instruction = new Instruction(InstructionType.popn, 1);
-                AnalyserTable.getInstructionList().add(instruction);
-            }
-            else{
-                // call main
-                instruction = new Instruction(InstructionType.call, functionCount-1);
-                instructionList1.add(instruction);
-            }
-            startFunction = new FunctionDef(globalCount, "_start",0, 0, 0, instructionList1);
-//            globalCount++;
-            // 对函数分析
+
             analyseFunction();
+            // 若没有异常，全局变量加1，函数个数加一
+            globalCount++;
+            functionCount++;
         }
         if(AnalyserTable.findFunc("main") == null)
             throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
         // 填入主函数
         GlobalDef globalDef = new GlobalDef(1,6, "_start");
         AnalyserTable.getGlobalDefList().add(globalDef);
+        // 加入指令
+        // 一开始设置分配空间为0
+        Instruction instruction = new Instruction(InstructionType.stackalloc, 0);
+        instructionList1.add(instruction);
+        // 加入函数返回指令
+        if(AnalyserTable.isFuncReturn("main")){
+            // 分配一个返回地址的空间
+            instruction.setInstrId(1);
+            // call main
+            instruction = new Instruction(InstructionType.call, functionCount-1);
+            instructionList1.add(instruction);
+//                // 返回后把栈中关于返回函数中所有的变量全部弹出
+            instruction = new Instruction(InstructionType.popn, 1);
+            AnalyserTable.getInstructionList().add(instruction);
+        }
+        else{
+            // call main
+            instruction = new Instruction(InstructionType.call, functionCount-1);
+            instructionList1.add(instruction);
+        }
+        startFunction = new FunctionDef(globalCount, "_start",0, 0, 0, instructionList1);
+        globalCount++;
+        // 对函数分析
     }
     // 分析定义语句
     public static void analyseDecl(Integer level) throws Exception {
@@ -109,8 +110,8 @@ public class Analyser {
         else if(token.getTokenType() == TokenType.LET_KW)
             analyseLetDecl(level);
         else throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
-//        if(level == 1) globalCount++;
-//        else localCount++;
+        if(level == 1) globalCount++;
+        else localCount++;
         // cxy
     }
 
@@ -132,12 +133,12 @@ public class Analyser {
             AnalyserTable.getVarList().add(var);
             GlobalDef glo = new GlobalDef(0,token.getValue().length(), token.getValue());
             AnalyserTable.getGlobalDefList().add(glo);
-            globalCount++; // cxy
+//            globalCount++; // cxy
         }
         else{
             Variable var = new Variable(token.getValue(), localCount, level);
             AnalyserTable.getVarList().add(var);
-            localCount++; // cxy
+//            localCount++; // cxy
         }
 
 
@@ -160,11 +161,11 @@ public class Analyser {
             // 加载地址
             if(level == 1){
                 // cxy -1
-                Instruction instruction = new Instruction(InstructionType.globa, globalCount-1);
+                Instruction instruction = new Instruction(InstructionType.globa, globalCount);
                 AnalyserTable.getInstructionList().add(instruction);
             }
             else{
-                Instruction instruction = new Instruction(InstructionType.loca, localCount-1);
+                Instruction instruction = new Instruction(InstructionType.loca, localCount);
                 AnalyserTable.getInstructionList().add(instruction);
             }
             token = TokenIter.currentToken();
@@ -208,13 +209,19 @@ public class Analyser {
             AnalyserTable.getConstList().add(cons);
             GlobalDef glo = new GlobalDef(1,token.getValue().length(), token.getValue());
             AnalyserTable.getGlobalDefList().add(glo);
-            globalCount++; // cxy
+            //生成 globa 指令，准备赋值
+            Instruction instruction = new Instruction(InstructionType.globa, globalCount);
+            AnalyserTable.getInstructionList().add(instruction);
+//            globalCount++; // cxy
             // 赋值指令cxy
         }
         else{
             Constant cons = new Constant(token.getValue(), localCount, level);
             AnalyserTable.getConstList().add(cons);
-            localCount++; // cxy
+            //生成 loca 指令，准备赋值
+            Instruction instruction = new Instruction(InstructionType.loca, localCount);
+            AnalyserTable.getInstructionList().add(instruction);
+//            localCount++; // cxy
         }
         //'const' IDENT ':' ty '=' expr ';
         token = TokenIter.currentToken();
@@ -233,15 +240,15 @@ public class Analyser {
 
         // 加载地址 cxy
         isAssign = true;
-        if(level == 1){
-            // cxy -1
-            Instruction instruction = new Instruction(InstructionType.globa, globalCount-1);
-            AnalyserTable.getInstructionList().add(instruction);
-        }
-        else{
-            Instruction instruction = new Instruction(InstructionType.loca, globalCount-1);
-            AnalyserTable.getInstructionList().add(instruction);
-        }
+//        if(level == 1){
+//            // cxy -1
+//            Instruction instruction = new Instruction(InstructionType.globa, globalCount-1);
+//            AnalyserTable.getInstructionList().add(instruction);
+//        }
+//        else{
+//            Instruction instruction = new Instruction(InstructionType.loca, globalCount-1);
+//            AnalyserTable.getInstructionList().add(instruction);
+//        }
         token = TokenIter.currentToken();
         analyseExpr(level);
         //弹栈
@@ -291,22 +298,27 @@ public class Analyser {
                     // 是否存在该函数名
                     if(AnalyserTable.findFunc(record.getValue()) != null){
                         Instruction instruction;
+                        Integer inte;
                         // 是库函数
                         if (AnalyserTable.isLibraryFuncName(record.getValue())) {
                             LibraryFunction libraryFunction = new LibraryFunction(record.getValue(), globalCount);
                             AnalyserTable.getLibraryFuncList().add(libraryFunction);
+                            inte = globalCount;
+                            globalCount++;
                             // cxy
                             GlobalDef globalDef = new GlobalDef(1, record.getValue().length(), record.getValue());
                             // 全局符号表
                             AnalyserTable.getGlobalDefList().add(globalDef);
                             instruction = new Instruction(InstructionType.callname, globalCount);
-                            globalCount++;
+//                            globalCount++;
                         }
                         //自定义函数
                         else {
-                            instruction = new Instruction(InstructionType.call, AnalyserTable.getFunctionAddr(record.getValue()));
+                            inte = AnalyserTable.getParamAddr(record.getValue());
+                            instruction = new Instruction(InstructionType.call, inte);
                         }
                         analyseCallExpr(record.getValue(), level);
+
                         //弹栈
                         Token token1;
                         while (tokenStack.peek().getTokenType() != TokenType.L_PAREN){
@@ -316,7 +328,8 @@ public class Analyser {
                         tokenStack.pop();
                         AnalyserTable.getInstructionList().add(instruction);
                     }
-                    else throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
+                    else
+                        throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
                     AnalyserTable.getInstructionList().add(minus_instr);
                     if (analyseBinaryOperator(token)) {
                         analyseOperatorExpr(level);
@@ -376,16 +389,20 @@ public class Analyser {
                 // call函数表达式
                 if(AnalyserTable.isFunction(record.getValue())){
                     Instruction instruction;
+                    Integer inte;
                     // 是库函数
                     if (AnalyserTable.isLibraryFuncName(record.getValue())) {
                         LibraryFunction libraryFunction = new LibraryFunction(record.getValue(), globalCount);
                         AnalyserTable.getLibraryFuncList().add(libraryFunction);
                         // cxy
+                        inte = globalCount;
+                        globalCount++;
+
                         GlobalDef globalDef = new GlobalDef(1, record.getValue().length(), record.getValue());
                         // 全局符号表
                         AnalyserTable.getGlobalDefList().add(globalDef);
-                        instruction = new Instruction(InstructionType.callname, globalCount);
-                        globalCount++;
+                        instruction = new Instruction(InstructionType.callname, inte);
+//                        globalCount++;
                     }
                     //自定义函数
                     else {
@@ -707,6 +724,7 @@ public class Analyser {
             throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
         // 记录变量
         Token record = token;
+
         token = TokenIter.currentToken();
         if(token.getTokenType() != TokenType.COLON)
             throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
@@ -845,6 +863,16 @@ public class Analyser {
         int index = AnalyserTable.getInstructionList().size();
         // 调用表达式时会多读入一个符号
         analyseBlock(type, level + 1);
+
+        //跳至while 判断语句
+        instruction = new Instruction(InstructionType.br, 0);
+        AnalyserTable.getInstructionList().add(instruction);
+        int whileEnd = AnalyserTable.getInstructionList().size();
+        int dis = whileStart - whileEnd;
+        instruction.setInstrId(dis);
+
+        dis = AnalyserTable.getInstructionList().size() - index;
+        jumpInstruction.setInstrId(dis);
     }
 
     // return_stmt -> 'return' expr? ';'
