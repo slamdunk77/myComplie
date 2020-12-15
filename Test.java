@@ -40,6 +40,15 @@ public class Test {
                     break;
             }
             Analyser.analyseProgram();
+            System.out.println(AnalyserTable.getGlobalDefList().size());
+            for (GlobalDef global : AnalyserTable.getGlobalDefList()) {
+                System.out.println(global);
+            }
+            System.out.println("-----------------------------function");
+            System.out.println(Analyser.getStartFunction());
+            for (FunctionDef functionDef : AnalyserTable.getFunctionDefList()) {
+                System.out.println(functionDef);
+            }
             for(int i=0;i<AnalyserTable.getInstructionList().size();i++){
                 System.out.println(AnalyserTable.getInstructionList().get(i).getInstr());
                 System.out.println(AnalyserTable.getInstructionList().get(i).getInstrId());
@@ -55,6 +64,8 @@ public class Test {
             }
             out.write(resultBytes);
         }catch (Exception e) {
+            System.out.println("hhh");
+            e.printStackTrace();
             System.exit(-1);
         }
     }

@@ -35,4 +35,12 @@ public class GlobalDef {
     public void setValueItems(String valueItems) {
         this.valueItems = valueItems;
     }
+    @Override
+    public String toString() {
+        return "Global{" +
+                "isConst=" + isConst +
+                ", valueCount=" + valueCount +
+                ", valueItems=" + valueItems +
+                '}';
+    }
 }

@@ -27,4 +27,11 @@ public class Instruction {
     public void setInstrId(Integer instrId) {
         this.instrId = instrId;
     }
+    @Override
+    public String toString() {
+        return "\n      Instructions{\n" +
+                "           instruction=" + instr +
+                ",\n        paramIds=" + instrId + '\n'+
+                '}';
+    }
 }

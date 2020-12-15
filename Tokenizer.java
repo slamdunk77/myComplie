@@ -7,6 +7,8 @@ public class Tokenizer {
     public Tokenizer(StringIter it) {
         this.it = it;
     }
+    public String[] tokenList = new String[1000];
+    public int i = 0;
 
     // 这里本来是想实现 Iterator<Token> 的，但是 Iterator 不允许抛异常，于是就这样了
     /**
@@ -157,9 +159,21 @@ public class Tokenizer {
             peek = it.nextChar();
             if(peek == '\\'){
                 peek = it.peekChar();
-                if(peek == '\\' || peek == 'r' || peek == 'n' || peek == 't' || peek == '"' || peek == '\''){
+                if(peek == '\\' || peek == '"' || peek == '\''){
                     it.nextChar();
                     str_token += '\\';
+                }
+                else if(peek == 'r'){
+                    it.nextChar();
+                    str_token += "\r";
+                }
+                else if(peek == 'n'){
+                    it.nextChar();
+                    str_token += "\n";
+                }
+                else if(peek == 't'){
+                    it.nextChar();
+                    str_token += "\t";
                 }
                 else
                     throw new TokenizeError(ErrorCode.ExpectedToken,p1);
@@ -201,9 +215,35 @@ public class Tokenizer {
             peek = it.nextChar();
             if(peek == '\\'){
                 peek = it.peekChar();
-                if(peek == '\\' || peek == 'r' || peek == 'n' || peek == 't' || peek == '"' || peek == '\''){
+                if(peek == '\\'){
                     it.nextChar();
-                    str_token += '\\';
+                    str_token += "\\";
+                    continue;
+                }
+                if(peek == 'r'){
+                    it.nextChar();
+                    str_token += "\r";
+                    continue;
+                }
+                if(peek == 'n'){
+                    it.nextChar();
+                    str_token += "\n";
+                    continue;
+                }
+                if (peek == 't'){
+                    it.nextChar();
+                    str_token += "\t";
+                    continue;
+                }
+                if(peek == '"'){
+                    it.nextChar();
+                    str_token += "\"";
+                    continue;
+                }
+                if (peek == '\''){
+                    it.nextChar();
+                    str_token += "\'";
+                    continue;
                 }
                 else
                     throw new TokenizeError(ErrorCode.ExpectedToken,p1);

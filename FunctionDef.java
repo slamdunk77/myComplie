@@ -48,4 +48,14 @@ public class FunctionDef {
     public String getFuncName() {
         return funcName;
     }
+    @Override
+    public String toString() {
+        return "FunctionDef{\n" +
+                "   id=" + funcId +
+                ",\n    returnSlots=" + retSlots +
+                ",\n    paramSlots=" + paramSlots +
+                ",\n    localSlots=" + locSlots +
+                ",\n    body=" + body +'\n'+
+                '}';
+    }
 }
