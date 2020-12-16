@@ -154,9 +154,13 @@ public class Tokenizer {
         it.nextChar();
         // 查看下一个字符 但是不移动指针
         char peek = it.peekChar();
+        int len = 0;
         while(peek != '"'){
             // 前进一个字符，并存储这个字符
             peek = it.nextChar();
+            len++;
+            if(len>=65535)
+                throw new TokenizeError(ErrorCode.ExpectedToken,p1);
             if(peek == '\\'){
                 peek = it.peekChar();
                 if(peek == '\\' || peek == '"' || peek == '\''){
