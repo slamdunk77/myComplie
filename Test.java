@@ -50,7 +50,7 @@ public class Test {
                 System.out.println(functionDef);
             }
             for(int i=0;i<AnalyserTable.getInstructionList().size();i++){
-                System.out.println(AnalyserTable.getInstructionList().get(i).getInstr());
+                System.out.print(AnalyserTable.getInstructionList().get(i).getInstr() + " ");
                 System.out.println(AnalyserTable.getInstructionList().get(i).getInstrId());
 
             }
@@ -64,7 +64,6 @@ public class Test {
             }
             out.write(resultBytes);
         }catch (Exception e) {
-            System.out.println("hhh");
             e.printStackTrace();
             System.exit(-1);
         }

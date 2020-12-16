@@ -96,7 +96,7 @@ public class AnalyserTable {
     public static boolean isFuncReturn(String funcName){
         for(int i = 0;i < functionList.size();i++){
             if(funcName.equals(functionList.get(i).getFuncName())){
-                if(functionList.get(i).getFuncType().equals("int"))
+                if(functionList.get(i).getFuncType().equals("int") || functionList.get(i).getFuncType().equals("char"))
                     return true;
             }
         }

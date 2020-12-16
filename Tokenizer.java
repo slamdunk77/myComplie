@@ -211,83 +211,135 @@ public class Tokenizer {
     }
 
     // 判断是否为一个字符常量
-    private Token lexChar() throws TokenizeError {
-        // 直到查看下一个字符是\'为止
-        // 记录字符的长度
-        // 记录字符
-        String str_token = "";
-        //记录初始位置
-        Pos p1 = it.ptr;
-        // 前进一个字符，并存储这个字符
-        it.nextChar();
-        // 查看下一个字符 但是不移动指针
-        char peek = it.peekChar();
-        while(peek != '\''){
-            // 前进一个字符，并存储这个字符
-            peek = it.nextChar();
-            if(peek == '\\'){
-                peek = it.peekChar();
-                if(peek == '\\'){
-                    it.nextChar();
-                    str_token += "\\";
-                    continue;
-                }
-                if(peek == 'r'){
-                    it.nextChar();
-                    str_token += "\r";
-                    continue;
-                }
-                if(peek == 'n'){
-                    it.nextChar();
-                    str_token += "\n";
-                    continue;
-                }
-                if (peek == 't'){
-                    it.nextChar();
-                    str_token += "\t";
-                    continue;
-                }
-                if(peek == '"'){
-                    it.nextChar();
-                    str_token += "\"";
-                    continue;
-                }
-                if (peek == '\''){
-                    it.nextChar();
-                    str_token += "\'";
-                    continue;
-                }
-                else
-                    throw new TokenizeError(ErrorCode.ExpectedToken,p1);
+//    private Token lexChar() throws TokenizeError {
+//        // 直到查看下一个字符是\'为止
+//        // 记录字符的长度
+//        // 记录字符
+//        String str_token = "";
+//        //记录初始位置
+//        Pos p1 = it.ptr;
+//        // 前进一个字符，并存储这个字符
+//        it.nextChar();
+//        // 查看下一个字符 但是不移动指针
+//        char peek = it.peekChar();
+//        while(peek != '\''){
+//            // 前进一个字符，并存储这个字符
+//            peek = it.nextChar();
+//            if(peek == '\\'){
+//                peek = it.peekChar();
+//                if(peek == '\\' || peek == '"' || peek == '\''){
+//                    it.nextChar();
+//                    str_token += peek;
+//                    peek = it.peekChar();
+//                    continue;
+//                }
+//                else if(peek == 'r'){
+//                    it.nextChar();
+//                    str_token += "\r";
+//                    peek = it.peekChar();
+//                    continue;
+//                }
+//                else if(peek == 'n'){
+//                    it.nextChar();
+//                    str_token += "\n";
+//                    peek = it.peekChar();
+//                    continue;
+//                }
+//                else if(peek == 't'){
+//                    it.nextChar();
+//                    str_token += "\t";
+//                    peek = it.peekChar();
+//                    continue;
+//                }
+//                else
+//                    throw new TokenizeError(ErrorCode.ExpectedToken,p1);
+//
+//            }
+//            // 将字符串和字符连接起来
+//            str_token += peek;
+//            // 查看下一个字符 但是不移动指针
+//            peek = it.peekChar();
+//        }
+//        it.nextChar();
+//        peek = it.peekChar();
+//        try{
+//            // 查看是否是合法的字符
+//            if(str_token.length() > 2 || (str_token.length() == 2 && str_token.charAt(0) != '\\'))
+//                throw new TokenizeError(ErrorCode.ExpectedToken,p1);
+//            if(str_token.length() == 2 && str_token.charAt(0) == '\\'){
+//                if(str_token.charAt(1) == '\'' || str_token.charAt(1) == '\"' || str_token.charAt(1) == '\\')
+//                    str_token = str_token.charAt(1) + "";
+//                else if(str_token.charAt(1) != 'n' && str_token.charAt(1) != 't' && str_token.charAt(1) != 'r')
+//                    throw new TokenizeError(ErrorCode.ExpectedToken,p1);
+//            }
+//            // 尝试将存储的字符串解释为关键字
+//            // 如果是关键字，则返回关键字类型的token
+//            if(isKeepWord(str_token) != null)
+//                return new Token(isKeepWord(str_token), isKeepWord(str_token).toString(), p1, it.ptr);
+//                // 否则，返回标识符
+//            else{
+//                return new Token(TokenType.CHAR_LITERAL, str_token, p1, it.ptr);
+//            }
+//        }catch(Exception e){
+//            // Token 的 Value 应填写标识符或关键字的字符串
+//            throw new TokenizeError(ErrorCode.ExpectedToken,p1);
+//        }
+//    }
 
-            }
-            // 将字符串和字符连接起来
-            str_token += peek;
-            // 查看下一个字符 但是不移动指针
-            peek = it.peekChar();
-        }
+    private Token lexChar() throws TokenizeError {
+        //记录初始位置
+        Pos p = it.ptr;
+        //移动到'\''上
         it.nextChar();
-        peek = it.peekChar();
-        try{
-            // 查看是否是合法的字符
-            if(str_token.length() > 2 || (str_token.length() == 2 && str_token.charAt(0) != '\\'))
-                throw new TokenizeError(ErrorCode.ExpectedToken,p1);
-            if(str_token.length() == 2 && str_token.charAt(0) == '\\'){
-                if(str_token.charAt(1) == '\'' || str_token.charAt(1) == '\"' || str_token.charAt(1) == '\\')
-                    str_token = str_token.charAt(1) + "";
-                else if(str_token.charAt(1) != 'n' && str_token.charAt(1) != 't' && str_token.charAt(1) != 'r')
-                    throw new TokenizeError(ErrorCode.ExpectedToken,p1);
-            }
-            // 尝试将存储的字符串解释为关键字
-            // 如果是关键字，则返回关键字类型的token
-            if(isKeepWord(str_token) != null)
-                return new Token(isKeepWord(str_token), isKeepWord(str_token).toString(), p1, it.ptr);
-                // 否则，返回标识符
-            else return new Token(TokenType.CHAR_LITERAL, str_token, p1, it.ptr);
-        }catch(Exception e){
-            // Token 的 Value 应填写标识符或关键字的字符串
-            throw new TokenizeError(ErrorCode.ExpectedToken,p1);
+        //移动到该字符上
+        char charNow = it.nextChar();
+        if (charNow == '\r' || charNow == '\n' || charNow == '\t' || charNow == '\'') {
+            throw new TokenizeError(ErrorCode.InvalidInput, it.ptr);
         }
+        //当是反斜线，有可能为反斜线或者转义序列
+        //查看反斜线后面的字符
+        char peek = it.peekChar();
+        if (charNow == '\\') {
+            switch (peek) {
+                case '\'':
+                    charNow = '\'';
+                    it.nextChar();
+                    it.nextChar();
+                    break;
+                case '\"':
+                    charNow = '\"';
+                    it.nextChar();
+                    it.nextChar();
+                    break;
+                case '\\':
+                    charNow = '\\';
+                    it.nextChar();
+                    it.nextChar();
+                    break;
+                case 'n':
+                    charNow = '\n';
+                    it.nextChar();
+                    it.nextChar();
+                    break;
+                case 'r':
+                    charNow = '\r';
+                    it.nextChar();
+                    it.nextChar();
+                    break;
+                case 't':
+                    charNow = '\t';
+                    it.nextChar();
+                    it.nextChar();
+                    break;
+                default:
+                    throw new TokenizeError(ErrorCode.InvalidInput, it.ptr);
+            }
+        } else {
+            it.nextChar();
+        }
+//        int a = Integer.valueOf(charNow);
+        //已经移动到右边的'\''上
+        return new Token(TokenType.CHAR_LITERAL, String.valueOf(charNow), p, it.ptr);
     }
 
     // 判断是否为运算符

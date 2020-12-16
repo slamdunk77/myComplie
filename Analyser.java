@@ -154,9 +154,8 @@ public class Analyser {
         token = TokenIter.currentToken();
         Token record = token;
         // 变量或常量的类型不能为 void
-        if(!token.getValue().equals("int"))
+        if(!(token.getValue().equals("int") || token.getValue().equals("char")))
             throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
-
         // expr语句
         // let_decl_stmt -> 'let' IDENT ':' ty ('=' expr)? ';'
         token = TokenIter.currentToken();
@@ -235,9 +234,8 @@ public class Analyser {
 
         token = TokenIter.currentToken();
         // 变量或常量的类型不能为 void
-        if(!token.getValue().equals("int"))
+        if(!(token.getValue().equals("int")||token.getValue().equals("char")))
             throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
-
         // const必须有等号
         token = TokenIter.currentToken();
         if(token.getTokenType() != TokenType.ASSIGN)
@@ -300,8 +298,9 @@ public class Analyser {
                 // 对整个表达式加 -
                 AnalyserTable.getInstructionList().add(minus_instr);
             }
-            else if (token.getTokenType() == TokenType.UINT_LITERAL) {
+            else if (token.getTokenType() == TokenType.UINT_LITERAL||token.getTokenType() == TokenType.CHAR_LITERAL) {
                 analyseLiteralExpr();
+
                 AnalyserTable.getInstructionList().add(minus_instr);
                 if (analyseBinaryOperator(token)) {
                     analyseOperatorExpr(level);
@@ -340,8 +339,8 @@ public class Analyser {
                         //弹栈
                         Token token1;
                         while (tokenStack.peek().getTokenType() != TokenType.L_PAREN){
-                           token1 = tokenStack.pop();
-                           AnalyserTable.operationInstruction(token1.getTokenType());
+                            token1 = tokenStack.pop();
+                            AnalyserTable.operationInstruction(token1.getTokenType());
                         }
                         tokenStack.pop();
                         AnalyserTable.getInstructionList().add(instruction);
@@ -455,7 +454,8 @@ public class Analyser {
             }
         }
         else if (token.getTokenType() == TokenType.UINT_LITERAL ||
-                token.getTokenType() == TokenType.STRING_LITERAL) {
+                token.getTokenType() == TokenType.STRING_LITERAL||
+                token.getTokenType() == TokenType.CHAR_LITERAL) {
             analyseLiteralExpr();
             if (analyseBinaryOperator(token)) analyseOperatorExpr(level);
         }
@@ -526,7 +526,7 @@ public class Analyser {
     // 表达式 as_expr -> expr 'as' ty
     public static void analyseAsExpr() throws Exception {
         token = TokenIter.currentToken();
-        if (!token.getValue().equals("int"))
+        if (!(token.getValue().equals("int") || token.getValue().equals("char")))
             throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
     }
 
@@ -585,12 +585,19 @@ public class Analyser {
     // 表达式 literal_expr -> UINT_LITERAL | DOUBLE_LITERAL | STRING_LITERAL
     public static void analyseLiteralExpr() throws Exception {
         if (!(token.getTokenType() == TokenType.UINT_LITERAL
-        ||token.getTokenType()  == TokenType.STRING_LITERAL)) {
+                ||token.getTokenType()  == TokenType.STRING_LITERAL||token.getTokenType()  == TokenType.CHAR_LITERAL)) {
             throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
         }
         if (token.getTokenType() == TokenType.UINT_LITERAL) {
             //加载常数
             Instruction instruction = new Instruction(InstructionType.push, Integer.parseInt(token.getValue()));
+            AnalyserTable.getInstructionList().add(instruction);
+        }
+        else if (token.getTokenType() == TokenType.CHAR_LITERAL) {
+            //加载常数
+            char charnow = token.getValue().charAt(0);
+            int a = Integer.valueOf(charnow);
+            Instruction instruction = new Instruction(InstructionType.push, a);
             AnalyserTable.getInstructionList().add(instruction);
         }
         else if (token.getTokenType() == TokenType.STRING_LITERAL) {
@@ -688,11 +695,11 @@ public class Analyser {
         // 继续读取下一个token -> ->
         token = TokenIter.currentToken();
         String type = token.getValue();
-        if(!(type.equals("int") || type.equals("void")))
+        if(!(type.equals("int") || type.equals("void") || type.equals("char")))
             throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
         // 是否有返回的分别处理
         Integer returnSlot;
-        if(type.equals("int")){
+        if(type.equals("int") || type.equals("char")){
             returnSlot = 1;
             alloc = 1;
         }
@@ -750,7 +757,7 @@ public class Analyser {
             throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
 
         token = TokenIter.currentToken();
-        if(!(token.getValue().equals("int") || token.getValue().equals("void")))
+        if(!(token.getValue().equals("int") || token.getValue().equals("void") || token.getValue().equals("char")))
             throw new AnalyzeError(ErrorCode.ExpectedToken, string_iter.currentPos());
 
         // 添加参数
@@ -916,7 +923,7 @@ public class Analyser {
         token = TokenIter.currentToken();
 
         if(token.getTokenType() != TokenType.SEMICOLON){
-            if(type.equals("int")){
+            if(type.equals("int") || type.equals("char")){
                 //取返回地址
                 Instruction instruction = new Instruction(InstructionType.arga, 0);
                 AnalyserTable.getInstructionList().add(instruction);
