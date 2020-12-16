@@ -379,7 +379,7 @@ public class Analyser {
                     }
                     else if(AnalyserTable.isParam(record.getValue())){
                         // 赋值，需要加载地址
-                        Instruction instruction = new Instruction(InstructionType.arga, AnalyserTable.getParamAddr(record.getValue()));
+                        Instruction instruction = new Instruction(InstructionType.arga, AnalyserTable.getParamAddr(record.getValue()) + alloc);
                         AnalyserTable.getInstructionList().add(instruction);
                     }
                     else{ // 全局变量
