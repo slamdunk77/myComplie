@@ -947,7 +947,7 @@ public class Analyser {
     }
     // break_stmt -> 'continue' ';'
     public static void analyseContinue(int loc) throws Exception{
-        if (token.getTokenType() != TokenType.BREAK_KW)
+        if (token.getTokenType() != TokenType.CONTINUE_KW)
             throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
         token = TokenIter.currentToken();
         if(token.getTokenType() != TokenType.SEMICOLON)
