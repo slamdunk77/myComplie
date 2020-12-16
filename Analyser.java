@@ -132,7 +132,7 @@ public class Analyser {
         if(level == 1){
             Variable var = new Variable(token.getValue(), globalCount, level);
             AnalyserTable.getVarList().add(var);
-            GlobalDef glo = new GlobalDef(0,token.getValue().length(), token.getValue());
+            GlobalDef glo = new GlobalDef(0,0, null);
             AnalyserTable.getGlobalDefList().add(glo);
 //            globalCount++; // cxy
         }
