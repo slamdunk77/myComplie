@@ -702,7 +702,7 @@ public class Analyser {
 //        System.out.println(AnalyserTable.getFunctionList().get(0).getParams());
         // 继续读取下一个token -> block——stmt
         token = TokenIter.currentToken();
-        analyseBlock(type, 2);
+        analyseBlock(type, 2, 0, 0);
 
         // 针对int,必须有return语句
         if (!isReturn)
@@ -756,12 +756,12 @@ public class Analyser {
         token = TokenIter.currentToken();
     }
     // '{' stmt* '}'
-    public static void analyseBlock(String type, Integer level) throws Exception {
+    public static void analyseBlock(String type, Integer level, int loc_break, int loc_continue) throws Exception {
         if (token.getTokenType() != TokenType.L_BRACE)
             throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
         token = TokenIter.currentToken();
         while (token.getTokenType() != TokenType.R_BRACE) {
-            analyseStmt(type, level);
+            analyseStmt(type, level, loc_break, loc_continue);
         }
         token = TokenIter.currentToken();
     }
@@ -776,24 +776,28 @@ public class Analyser {
     //    | return_stmt
     //    | block_stmt
     //    | empty_stmt
-    public static void analyseStmt(String type, Integer level) throws Exception {
+    public static void analyseStmt(String type, Integer level, int loc_break, int loc_continue) throws Exception {
         if (token.getTokenType() == TokenType.CONST_KW || token.getTokenType() == TokenType.LET_KW)
             analyseDecl(level);
         else if (token.getTokenType() == TokenType.IF_KW)
-            analyseIf(type, level);
+            analyseIf(type, level, loc_break, loc_continue);
         else if (token.getTokenType() == TokenType.WHILE_KW)
             analyseWhile(type, level);
         else if (token.getTokenType() == TokenType.RETURN_KW)
             analyseReturn(type, level);
         else if (token.getTokenType() == TokenType.SEMICOLON)
             analyseEmpty();
+        else if (token.getTokenType() == TokenType.BREAK_KW)
+            analyseBreak(loc_break);
+        else if (token.getTokenType() == TokenType.CONTINUE_KW)
+            analyseContinue(loc_continue);
         else if (token.getTokenType() == TokenType.L_BRACE)
-            analyseBlock(type, level + 1);
+            analyseBlock(type, level + 1, loc_break, loc_continue);
         else
             analyseExprStmt(level);
     }
     // if_stmt -> 'if' expr block_stmt ('else' 'if' expr block_stmt)* ('else' block_stmt)?
-    public static void analyseIf(String type, Integer level) throws Exception {
+    public static void analyseIf(String type, Integer level, int loc_while, int loc_continue) throws Exception {
         if (token.getTokenType() != TokenType.IF_KW)
             throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
         token = TokenIter.currentToken();
@@ -812,7 +816,7 @@ public class Analyser {
         int index = AnalyserTable.getInstructionList().size();
 
         // 调用表达式时会多读入一个符号
-        analyseBlock(type, level + 1);
+        analyseBlock(type, level + 1, loc_while, loc_continue);
 
         int size = AnalyserTable.getInstructionList().size();
         if (AnalyserTable.getInstructionList().get(size -1).getInstr().getInstructionNum()== 0x49) {
@@ -822,9 +826,9 @@ public class Analyser {
             if (token.getTokenType() == TokenType.ELSE_KW) {
                 token = TokenIter.currentToken();
                 if (token.getTokenType() == TokenType.IF_KW)
-                    analyseIf(type, level);
+                    analyseIf(type, level, loc_while, loc_continue);
                 else {
-                    analyseBlock(type, level+1);
+                    analyseBlock(type, level+1, loc_while, loc_continue);
                     size = AnalyserTable.getInstructionList().size();
                     instruction = new Instruction(InstructionType.br, 0);
                     AnalyserTable.getInstructionList().add(instruction);
@@ -841,9 +845,9 @@ public class Analyser {
             if (token.getTokenType() == TokenType.ELSE_KW) {
                 token = TokenIter.currentToken();
                 if (token.getTokenType() == TokenType.IF_KW)
-                    analyseIf(type, level);
+                    analyseIf(type, level, loc_while, loc_continue);
                 else {
-                    analyseBlock(type, level+1);
+                    analyseBlock(type, level+1, loc_while, loc_continue);
                     size = AnalyserTable.getInstructionList().size();
                     instruction = new Instruction(InstructionType.br, 0);
                     AnalyserTable.getInstructionList().add(instruction);
@@ -878,7 +882,7 @@ public class Analyser {
         AnalyserTable.getInstructionList().add(jumpInstruction);
         int index = AnalyserTable.getInstructionList().size();
         // 调用表达式时会多读入一个符号
-        analyseBlock(type, level + 1);
+        analyseBlock(type, level + 1, index, whileStart);
 
         //跳至while 判断语句
         instruction = new Instruction(InstructionType.br, 0);
@@ -927,6 +931,34 @@ public class Analyser {
         token = TokenIter.currentToken();
     }
 
+    // break_stmt -> 'break' ';'
+    public static void analyseBreak(int loc) throws Exception{
+        if (token.getTokenType() != TokenType.BREAK_KW)
+            throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
+        token = TokenIter.currentToken();
+        if(token.getTokenType() != TokenType.SEMICOLON)
+            throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
+
+        Instruction instruction = new Instruction(InstructionType.br, 0);
+        AnalyserTable.getInstructionList().add(instruction);
+        int nowLocal = AnalyserTable.getInstructionList().size();
+        instruction.setInstrId(loc - nowLocal);
+        token = TokenIter.currentToken();
+    }
+    // break_stmt -> 'continue' ';'
+    public static void analyseContinue(int loc) throws Exception{
+        if (token.getTokenType() != TokenType.BREAK_KW)
+            throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
+        token = TokenIter.currentToken();
+        if(token.getTokenType() != TokenType.SEMICOLON)
+            throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
+
+        Instruction instruction = new Instruction(InstructionType.br, 0);
+        AnalyserTable.getInstructionList().add(instruction);
+        int nowLocal = AnalyserTable.getInstructionList().size();
+        instruction.setInstrId(loc - nowLocal);
+        token = TokenIter.currentToken();
+    }
     //空语句
     public static void analyseEmpty() throws Exception {
         if (token.getTokenType() != TokenType.SEMICOLON)
