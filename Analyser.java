@@ -26,6 +26,10 @@ public class Analyser {
     private static int alloc = 0;
     //函数是否有返回值
     private static boolean isReturn = false;
+    // 是否遇到continue
+    private static int isContinue = -1;
+    // 是否遇到break
+    private static int isBreak = -1;
     // 算符优先表
     private static int priority[][];
 
@@ -781,16 +785,22 @@ public class Analyser {
             analyseDecl(level);
         else if (token.getTokenType() == TokenType.IF_KW)
             analyseIf(type, level, loc_break, loc_continue);
-        else if (token.getTokenType() == TokenType.WHILE_KW)
+        else if (token.getTokenType() == TokenType.WHILE_KW){
+            isBreak = -1;
             analyseWhile(type, level);
+        }
+
         else if (token.getTokenType() == TokenType.RETURN_KW)
             analyseReturn(type, level);
         else if (token.getTokenType() == TokenType.SEMICOLON)
             analyseEmpty();
         else if (token.getTokenType() == TokenType.BREAK_KW)
             analyseBreak(loc_break);
-        else if (token.getTokenType() == TokenType.CONTINUE_KW)
+        else if (token.getTokenType() == TokenType.CONTINUE_KW){
+            isContinue = -1;
             analyseContinue(loc_continue);
+        }
+
         else if (token.getTokenType() == TokenType.L_BRACE)
             analyseBlock(type, level + 1, loc_break, loc_continue);
         else
@@ -819,7 +829,7 @@ public class Analyser {
         analyseBlock(type, level + 1, loc_while, loc_continue);
 
         int size = AnalyserTable.getInstructionList().size();
-        if (AnalyserTable.getInstructionList().get(size -1).getInstr().getInstructionNum()== 0x49) {
+        if (AnalyserTable.getInstructionList().get(size -1).getInstr().getInstructionNum()== 0x49 || isBreak != -1 || isContinue != -1) {
             int dis = AnalyserTable.getInstructionList().size() - index;
             ifInstruction.setInstrId(dis);
 
@@ -888,6 +898,10 @@ public class Analyser {
         instruction = new Instruction(InstructionType.br, 0);
         AnalyserTable.getInstructionList().add(instruction);
         int whileEnd = AnalyserTable.getInstructionList().size();
+        if(isBreak != -1)
+            AnalyserTable.getInstructionList().get(isBreak).setInstrId(whileEnd - 1 - isBreak);
+        if(isContinue != -1)
+            AnalyserTable.getInstructionList().get(isContinue).setInstrId(whileStart - 1 - isContinue);
         int dis = whileStart - whileEnd;
         instruction.setInstrId(dis);
 
@@ -941,8 +955,7 @@ public class Analyser {
 
         Instruction instruction = new Instruction(InstructionType.br, 0);
         AnalyserTable.getInstructionList().add(instruction);
-        int nowLocal = AnalyserTable.getInstructionList().size();
-        instruction.setInstrId(loc - nowLocal);
+        isBreak = AnalyserTable.getInstructionList().size() - 1;
         token = TokenIter.currentToken();
     }
     // break_stmt -> 'continue' ';'
@@ -955,8 +968,7 @@ public class Analyser {
 
         Instruction instruction = new Instruction(InstructionType.br, 0);
         AnalyserTable.getInstructionList().add(instruction);
-        int nowLocal = AnalyserTable.getInstructionList().size();
-        instruction.setInstrId(loc - nowLocal);
+        isContinue = AnalyserTable.getInstructionList().size() - 1;
         token = TokenIter.currentToken();
     }
     //空语句
