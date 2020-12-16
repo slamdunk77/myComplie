@@ -227,28 +227,34 @@ public class Tokenizer {
             peek = it.nextChar();
             if(peek == '\\'){
                 peek = it.peekChar();
-                if(peek == '\\' || peek == '"' || peek == '\''){
+                if(peek == '\\'){
                     it.nextChar();
-                    str_token += peek;
-                    peek = it.peekChar();
+                    str_token += "\\";
                     continue;
                 }
-                else if(peek == 'r'){
+                if(peek == 'r'){
                     it.nextChar();
                     str_token += "\r";
-                    peek = it.peekChar();
                     continue;
                 }
-                else if(peek == 'n'){
+                if(peek == 'n'){
                     it.nextChar();
                     str_token += "\n";
-                    peek = it.peekChar();
                     continue;
                 }
-                else if(peek == 't'){
+                if (peek == 't'){
                     it.nextChar();
                     str_token += "\t";
-                    peek = it.peekChar();
+                    continue;
+                }
+                if(peek == '"'){
+                    it.nextChar();
+                    str_token += "\"";
+                    continue;
+                }
+                if (peek == '\''){
+                    it.nextChar();
+                    str_token += "\'";
                     continue;
                 }
                 else
