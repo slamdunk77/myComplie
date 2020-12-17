@@ -9,6 +9,8 @@ public class Analyser {
     private static ArrayList<Token> tokenList;
     // 指向tokenList的指针
     private static Iterator<Token> token_iter;
+    private static ArrayList<Break> breakList;
+    private static ArrayList<Continue> continueList;
     private static StringIter string_iter;
     // 判断表达式的栈
     private static Stack<Token> tokenStack;
@@ -26,10 +28,8 @@ public class Analyser {
     private static int alloc = 0;
     //函数是否有返回值
     private static boolean isReturn = false;
-    // 是否遇到continue
-    private static int isContinue = -1;
-    // 是否遇到break
-    private static int isBreak = -1;
+    // 记录while的层数
+    private static int while_level = 0;
     // 算符优先表
     private static int priority[][];
 
@@ -46,6 +46,8 @@ public class Analyser {
         token = TokenIter.getToken();
         tokenStack = new Stack<>();
         priority = OperatorTable.getPriority();
+        breakList = new ArrayList<>();
+        continueList = new ArrayList<>();
     }
     // progrom -> item*
     // item -> function | decl_stmt
@@ -793,7 +795,6 @@ public class Analyser {
         else if (token.getTokenType() == TokenType.IF_KW)
             analyseIf(type, level, loc_break, loc_continue);
         else if (token.getTokenType() == TokenType.WHILE_KW){
-            isBreak = -1;
             analyseWhile(type, level);
         }
 
@@ -804,7 +805,6 @@ public class Analyser {
         else if (token.getTokenType() == TokenType.BREAK_KW)
             analyseBreak(loc_break);
         else if (token.getTokenType() == TokenType.CONTINUE_KW){
-            isContinue = -1;
             analyseContinue(loc_continue);
         }
 
@@ -836,7 +836,7 @@ public class Analyser {
         analyseBlock(type, level + 1, loc_while, loc_continue);
 
         int size = AnalyserTable.getInstructionList().size();
-        if (AnalyserTable.getInstructionList().get(size -1).getInstr().getInstructionNum()== 0x49 || isBreak != -1 || isContinue != -1) {
+        if (AnalyserTable.getInstructionList().get(size -1).getInstr().getInstructionNum()== 0x49) {
             int dis = AnalyserTable.getInstructionList().size() - index;
             ifInstruction.setInstrId(dis);
 
@@ -898,22 +898,38 @@ public class Analyser {
         Instruction jumpInstruction = new Instruction(InstructionType.br, 0);
         AnalyserTable.getInstructionList().add(jumpInstruction);
         int index = AnalyserTable.getInstructionList().size();
+
+        while_level++;
         // 调用表达式时会多读入一个符号
         analyseBlock(type, level + 1, index, whileStart);
+        while_level--;
 
         //跳至while 判断语句
         instruction = new Instruction(InstructionType.br, 0);
         AnalyserTable.getInstructionList().add(instruction);
+
         int whileEnd = AnalyserTable.getInstructionList().size();
-        if(isBreak != -1)
-            AnalyserTable.getInstructionList().get(isBreak).setInstrId(whileEnd - 1 - isBreak);
-        if(isContinue != -1)
-            AnalyserTable.getInstructionList().get(isContinue).setInstrId(whileStart - 1 - isContinue);
         int dis = whileStart - whileEnd;
         instruction.setInstrId(dis);
 
         dis = AnalyserTable.getInstructionList().size() - index;
         jumpInstruction.setInstrId(dis);
+
+        for(Break b: breakList){
+            int off=whileEnd-b.getAddr();
+            //跳到while后第一条语句
+            if(b.getWhile_level() == while_level + 1)
+                b.getInstruction().setInstrId(off);
+        }
+        for(Continue c: continueList){
+            int off=whileEnd-c.getAddr();
+            //跳到while的最后一条语句，即跳回while
+            if(c.getWhile_level() == while_level + 1) c.getInstruction().setInstrId(off - 1);
+        }
+        if(while_level == 0){
+            breakList.clear();
+            continueList.clear();
+        }
     }
 
     // return_stmt -> 'return' expr? ';'
@@ -960,9 +976,14 @@ public class Analyser {
         if(token.getTokenType() != TokenType.SEMICOLON)
             throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
 
+        // 不在循环里面报错
+        if(while_level == 0)
+            throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
+
         Instruction instruction = new Instruction(InstructionType.br, 0);
         AnalyserTable.getInstructionList().add(instruction);
-        isBreak = AnalyserTable.getInstructionList().size() - 1;
+
+        breakList.add(new Break(instruction, AnalyserTable.getInstructionList().size(), while_level));
         token = TokenIter.currentToken();
     }
     // break_stmt -> 'continue' ';'
@@ -973,9 +994,14 @@ public class Analyser {
         if(token.getTokenType() != TokenType.SEMICOLON)
             throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
 
+        // 不再循环里面报错
+        if(while_level == 0)
+            throw new AnalyzeError(ErrorCode.NotDeclared, string_iter.currentPos());
+
         Instruction instruction = new Instruction(InstructionType.br, 0);
         AnalyserTable.getInstructionList().add(instruction);
-        isContinue = AnalyserTable.getInstructionList().size() - 1;
+
+        continueList.add(new Continue(instruction, AnalyserTable.getInstructionList().size(), while_level));
         token = TokenIter.currentToken();
     }
     //空语句

@@ -1,9 +1,9 @@
-public class Break {
+public class Continue {
     private Instruction instruction;
     private int addr;
     private int while_level;
 
-    public Break(Instruction instruction, int addr, int while_level){
+    public Continue(Instruction instruction, int addr, int while_level){
         this.addr = addr;
         this.instruction = instruction;
         this.while_level = while_level;
